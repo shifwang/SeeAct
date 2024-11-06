@@ -32,7 +32,6 @@ def format_input_multichoice(
     tree_repr, id_mapping = get_tree_repr(
         dom_tree, id_mapping={}, keep_html_brackets=keep_html_brackets
     )
-    import pdb; pdb.set_trace()
     candidate_nodes = dom_tree.xpath("//*[@backend_node_id]")
     choices = []
     for idx, node in enumerate(candidate_nodes):
