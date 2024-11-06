@@ -447,6 +447,7 @@ async def get_interactive_elements_with_playwright(page):
     interactive_elements_selectors = [
         'a', 'button',
         'input',
+        '.radio-toolbar label',
         'select', 'textarea', 'adc-tab', '[role="button"]', '[role="radio"]', '[role="option"]', '[role="combobox"]',
         '[role="textbox"]',
         '[role="listbox"]', '[role="menu"]',
