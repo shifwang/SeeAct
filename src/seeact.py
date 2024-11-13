@@ -35,7 +35,8 @@ from playwright.async_api import async_playwright
 from data_utils.format_prompt_utils import get_index_from_option_name
 from data_utils.prompts import generate_prompt, format_options
 from demo_utils.browser_helper import (normal_launch_async, normal_new_context_async,
-                                       get_interactive_elements_with_playwright, select_option, saveconfig)
+                                       get_interactive_elements_with_playwright, get_score_with_playwright,
+                                       select_option, saveconfig)
 from demo_utils.format_prompt import format_choices, format_ranking_input, postprocess_action_lmm
 from demo_utils.inference_engine import OpenaiEngine
 from demo_utils.ranking_model import CrossEncoder, find_topk
@@ -329,9 +330,9 @@ async def main(config, base_dir) -> None:
                             path=f"{os.path.join(main_result_path, 'playwright_traces', f'{time_step}.zip')}")
 
                     logger.info(f"Write results to json file: {os.path.join(main_result_path, 'result.json')}")
-                    success_or_not = ""
+                    success_or_not = await get_score_with_playwright(session_control.active_page)
                     if valid_op_count == 0:
-                        success_or_not = "0"
+                        success_or_not = "-1"
                     final_json = {"confirmed_task": confirmed_task, "website": confirmed_website,
                                   "task_id": task_id, "success_or_not": success_or_not,
                                   "num_step": len(taken_actions), "action_history": taken_actions,
