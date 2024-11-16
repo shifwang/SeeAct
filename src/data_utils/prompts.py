@@ -300,3 +300,22 @@ def generate_prompt(experiment_split, task=None, previous=None, choices=None):
                                           choices=choices))
         return prompt_list
 
+def generate_reflection_prompt(task=None, previous=None, choices=None):
+    assert experiment_split != None, "Please specify the experiment split."
+    assert task != None, "Please input the task."
+    assert previous != None, "Please input the previous actions."
+
+    prompt_list = []
+
+    system_prompt_input = seeact_choice_prompt_dict["system_prompt"]
+    prompt_list = []
+
+    prompt_list.extend(
+        generate_new_query_prompt(system_prompt=system_prompt_input, task=task, previous_actions=previous,
+                                  question_description=question_description_input))
+    prompt_list.append(
+        generate_new_referring_prompt(referring_description=referring_input, element_format=element_format_input,
+                                      action_format=action_format_input, value_format=value_format_input,
+                                      choices=choices))
+    return prompt_list
+
