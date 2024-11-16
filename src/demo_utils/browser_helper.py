@@ -484,6 +484,40 @@ async def get_interactive_elements_with_playwright(page):
                 interactive_elements.append(i)
     return interactive_elements
 
+async def get_score_with_playwright(page):
+    interactive_elements_selectors = [
+        '[id="reward"]',
+    ]
+
+    tasks = []
+
+    seen_elements = set()
+    for selector in interactive_elements_selectors:
+        locator = page.locator(selector)
+        element_count = await locator.count()
+        for index in range(element_count):
+            element = locator.nth(index)
+            tag_name = selector.replace(":not([tabindex=\"-1\"])", "")
+            tag_name = tag_name.replace(":not([contenteditable=\"false\"])", "")
+            task = get_element_data(element, tag_name)
+
+            tasks.append(task)
+
+    results = await asyncio.gather(*tasks)
+
+    interactive_elements = []
+    for i in results:
+        if i:
+            if i[0] in seen_elements:
+                continue
+            else:
+                seen_elements.add(i[0])
+                interactive_elements.append(i)
+    if interactive_elements:
+        return interactive_elements[0][1].split(")")[-1]
+    else:
+        return "-1"
+
 
 async def select_option(selector, value):
     best_option = [-1, "", -1]
