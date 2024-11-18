@@ -87,6 +87,38 @@ class OpenaiEngine(Engine):
         backoff.expo,
         (APIError, RateLimitError, APIConnectionError, ServiceUnavailableError, InvalidRequestError),
     )
+    def plain_generate(self, prompt: list = None, max_new_tokens=4096, temperature=None, model=None,
+                 **kwargs):
+        self.current_key_idx = (self.current_key_idx + 1) % len(self.api_keys)
+        start_time = time.time()
+        if (
+                self.request_interval > 0
+                and start_time < self.next_avil_time[self.current_key_idx]
+        ):
+            time.sleep(self.next_avil_time[self.current_key_idx] - start_time)
+        openai.api_key = self.api_keys[self.current_key_idx]
+        prompt_input = [
+            {"role": "system", "content": [{"type": "text", "text": prompt[0]}]},
+        ]
+        for curr in prompt[1:]:
+            prompt_input.extend([
+                {"role": "user",
+                 "content": [{"type": "text", "text": curr}]},
+            ])
+            response = openai.ChatCompletion.create(
+                model=model if model else self.model,
+                messages=prompt_input,
+                max_tokens=max_new_tokens if max_new_tokens else 4096,
+                temperature=temperature if temperature else self.temperature,
+                **kwargs,
+            )
+            answer = [choice["message"]["content"] for choice in response["choices"]][0]
+            prompt_input.extend([{"role": "assistant", "content": [{"type": "text", "text": answer}]}]) 
+        return answer
+    @backoff.on_exception(
+        backoff.expo,
+        (APIError, RateLimitError, APIConnectionError, ServiceUnavailableError, InvalidRequestError),
+    )
     def generate(self, prompt: list = None, max_new_tokens=4096, temperature=None, model=None, image_path=None,
                  output__0=None, turn_number=0, **kwargs):
         self.current_key_idx = (self.current_key_idx + 1) % len(self.api_keys)
@@ -194,7 +226,6 @@ class OpenaiEngine(Engine):
                 temperature=temperature if temperature else self.temperature,
                 **kwargs,
             )
-            import pdb; pdb.set_trace()
             return [choice["message"]["content"] for choice in response4["choices"]][0]
 
 

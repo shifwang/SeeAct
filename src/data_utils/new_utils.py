@@ -1,14 +1,23 @@
-
+import numpy as np
 from data_utils.format_prompt_utils import get_index_from_option_name
 
 class Node:
-    def __init__(self, url="", parent=None, children=[], alternatives=[]):
+    def __init__(self, url="", parent=None, children=[]):
         self.url = url
         self.parent = parent
         self.children = children
-        self.alternatives = alternatives  # alternative actions
+        self.depth = self.parent.depth + 1 if self.parent is not None else 0
+        self.reflection = []
     def __repr__(self):
-        return f"Node(url={self.url}, parent={self.parent}, children={self.children}, alternatives={self.alternatives})"
+        return f"Node(depth={self.depth}, url={self.url}, parent={self.parent}, children={len(self.children)}, reflection={len(self.reflection)})"
+
+def choose_reflected_action(output: str):
+    index = np.random.choice(3)
+    element = [x for x in output.split("\n") if x.startswith("ELEMENT")][index]
+    reason = [x for x in output.split("\n") if x.startswith("REASON")][index]
+    pos = ord(element[-1]) - ord("A")
+    return pos, reason
+
 
 def process_new_action(element, action, value, elements, n_total_elements, choices):
     new_action = ""
