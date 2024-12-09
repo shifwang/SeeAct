@@ -127,7 +127,7 @@ def generate_new_query_prompt(system_prompt="", task="", previous_actions=None, 
     if previous_actions is None:
         previous_actions = []
     for action_text in previous_actions:
-        previous_action_text += action_text
+        previous_action_text += action_text if action_text is not None else ""
         previous_action_text += "\n"
     query_text += previous_action_text
     query_text += "\n"
